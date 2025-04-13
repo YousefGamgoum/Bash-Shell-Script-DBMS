@@ -26,11 +26,11 @@ while true; do
         4)
             dropDatabase ;;
         5)
-            echo "👋 Exiting... Bye!"
+            echo "Exiting... Bye!"
             break
             ;;
         *)
-            echo "⚠️ Invalid option. Please choose between 1-5."
+            echo "Invalid option. Please choose between 1-5."
             ;;
     esac
 
