@@ -146,7 +146,6 @@ function insertIntoTable {
         return
     fi
 
-   
     columns_line=$(head -n 1 "$table_path" | cut -d'=' -f2)
     pk_name=$(grep "^#pk=" "$table_path" | cut -d'=' -f2)
 
@@ -184,18 +183,16 @@ function insertIntoTable {
             done
         done
 
-  
         for i in "${!col_names[@]}"; do
             if [[ "${col_names[$i]}" == "$pk_name" ]]; then
                 if [[ -z "${input_map[$i]}" ]]; then
-
-                    last_pk=$(awk -F: -v index=$i '!/^#/ { print $index }' "$table_path" | sort -n | tail -n 1)
+                
+                    last_pk=$(awk -F: -v idx=$((i+1)) 'NR>2 { print $idx }' "$table_path" | sort -n | tail -n 1)
                     [[ -z "$last_pk" ]] && last_pk=0
                     input_map[$i]=$((last_pk + 1))
                     echo "Auto-incremented $pk_name = ${input_map[$i]}"
                 else
-           
-                    if awk -F: -v index=$i -v val="${input_map[$i]}" '!/^#/ { if($index==val) exit 1 }' "$table_path"; then
+                    if awk -F: -v idx=$((i+1)) -v val="${input_map[$i]}" 'NR>2 { if($idx==val) exit 1 }' "$table_path"; then
                         echo "Primary key is unique"
                     else
                         echo "Duplicate primary key!"
@@ -204,7 +201,6 @@ function insertIntoTable {
                 fi
             fi
         done
-
 
         for i in "${!col_names[@]}"; do
             row+=("${input_map[$i]:-NULL}")
@@ -220,14 +216,12 @@ function insertIntoTable {
             fi
 
             if [[ "${col_names[$i]}" == "$pk_name" ]]; then
-          
-                if awk -F: -v idx=$i -v val="${input_map[$i]}" '!/^#/ { if($idx==val) exit 1 }' "$table_path"; then
+                if awk -F: -v idx=$((i+1)) -v vall="${val}" 'NR>2 { if($idx==vall) exit 1 }' "$table_path"; then
                     echo "Primary key is unique"
                 else
                     echo "Duplicate primary key!"
                     return
                 fi
-
             fi
             row+=("$val")
         done
